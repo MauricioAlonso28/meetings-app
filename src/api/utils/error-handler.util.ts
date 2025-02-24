@@ -1,7 +1,17 @@
-export function handleError(error: any): { error: string } {
+import { HttpStatus } from "@nestjs/common";
+import { Response } from "express";
+
+export function handleError(
+  error: any,
+  res: Response
+) {
   if (error instanceof Error) {
-    return { error: error.message };
+    return res.status(HttpStatus.CONFLICT).send({
+      error: error.message,
+    })
   } else {
-    return { error: 'Unknown error occurred' };
+    return res.status(HttpStatus.CONFLICT).send({
+      error: 'An unknown error occurred',
+    })
   }
 }

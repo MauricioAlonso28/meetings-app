@@ -34,7 +34,7 @@ export class Professional {
   description: string
 
   @Column({
-    type: "image",
+    type: "varchar",
     nullable: true
   })
   image: string

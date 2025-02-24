@@ -33,7 +33,7 @@ export class Customer {
   description: string
 
   @Column({
-    type: "image",
+    type: "varchar",
     nullable: true
   })
   image: string
