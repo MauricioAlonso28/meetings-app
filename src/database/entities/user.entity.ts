@@ -34,7 +34,6 @@ export class User {
   @Column({
     type: "enum",
     enum: UserRole,
-    default: UserRole.ANONYMOUS
   })
   role: UserRole
 

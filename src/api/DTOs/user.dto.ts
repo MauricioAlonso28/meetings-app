@@ -1,4 +1,5 @@
-import { IsEmail, IsStrongPassword, MaxLength } from 'class-validator'
+import { UserRole } from '@/database/enums/user.enum';
+import { IsEmail, IsEnum, IsStrongPassword, MaxLength, NotEquals } from 'class-validator'
 
 export class UserAuthDto {
   @IsEmail({}, { message: 'Invalid email format' })
@@ -15,4 +16,7 @@ export class UserAuthDto {
     message: 'Password must be at least 8 characters long and include 2 uppercase letters, 2 lowercase letters, 2 numbers, and 1 symbol.'
   })
   password: string;
+
+  @IsEnum(UserRole)
+  role: UserRole
 }

@@ -27,7 +27,8 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(credentials.password, 10)
     const newUser = this.authRepository.create({
       email: credentials.email,
-      password: hashedPassword
+      password: hashedPassword,
+      role: credentials.role
     })
 
     const userCreated = await this.authRepository.save(newUser)
