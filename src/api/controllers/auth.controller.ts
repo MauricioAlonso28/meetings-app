@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res } from "@nestjs/common";
 import { AuthService } from "@/api/services/auth.service";
 import { handleError } from "@/api/utils/error-handler.util";
-import { UserAuthDto } from "@/api/DTOs/user.dto";
+import { AuthSignInDto, AuthSignUpDto } from "@/api/DTOs/user.dto";
 import { Response } from 'express'
 import { ExtendedRequest } from "../constants/config.interface";
 
@@ -14,7 +14,7 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async signUp(
-    @Body() authDto: UserAuthDto,
+    @Body() authDto: AuthSignUpDto,
     @Res() res: Response
   ) {
     try {
@@ -33,7 +33,7 @@ export class AuthController {
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   async signIn(
-    @Body() authDto: UserAuthDto,
+    @Body() authDto: AuthSignInDto,
     @Res() res: Response
   ) {
     try {

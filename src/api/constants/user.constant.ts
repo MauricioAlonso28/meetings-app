@@ -8,8 +8,8 @@ export type UserPassword = {
   password: string;
 }
 
-export interface AuthUser {
-  email: string
-  password: string
+export interface AuthSignUp extends UserEmail, UserPassword{
   role: UserRole
 }
+
+export interface AuthSignIn extends UserEmail, UserPassword {}
