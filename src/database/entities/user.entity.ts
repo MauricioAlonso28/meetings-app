@@ -34,7 +34,6 @@ export class User {
   @Column({
     type: "enum",
     enum: UserRole,
-    default: UserRole.CUSTOMER
   })
   role: UserRole
 
@@ -44,12 +43,14 @@ export class User {
   createdAt: Date
 
   @OneToOne(() => Professional,
-    (professional) => professional.user
+    (professional) => professional.user,
+    { nullable: true }
   )
-  professional?: Professional
+  professional: Professional
 
   @OneToOne(() => Customer,
-    (customer) => customer.user
+    (customer) => customer.user,
+    { nullable: true }
   )
-  customer?: Customer
+  customer: Customer
 }
