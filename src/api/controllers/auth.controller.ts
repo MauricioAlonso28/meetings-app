@@ -4,13 +4,25 @@ import { handleError } from "@/api/utils/error-handler.util";
 import { AuthSignInDto, AuthSignUpDto } from "@/api/DTOs/user.dto";
 import { Response } from 'express'
 import { ExtendedRequest } from "../constants/config.interface";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
+@ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(
     private readonly authService: AuthService
   ) { }
 
+  @ApiOperation({
+    summary: "Sign up user",
+  })
+  @ApiCreatedResponse({
+    description: "User signed up successfully",
+    type: AuthSignUpDto
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async signUp(
@@ -30,6 +42,16 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({
+    summary: "Sign in user",
+  })
+  @ApiOkResponse({
+    description: "User signed in successfully",
+    type: AuthSignInDto
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   async signIn(
@@ -49,6 +71,15 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({
+    summary: "Sign out user",
+  })
+  @ApiOkResponse({
+    description: "User signed out successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
   @Post('signout')
   @HttpCode(HttpStatus.OK)
   async signOut(
