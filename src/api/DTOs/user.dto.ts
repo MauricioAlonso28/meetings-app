@@ -8,7 +8,7 @@ export class AuthSignUpDto {
     example: "test01@gmail.com"
   })
   @IsEmail({}, { message: 'Invalid email format' })
-  @MaxLength(50, { message: 'Email must not exceed 40 characters' })
+  @MaxLength(40, { message: 'Email must not exceed 40 characters' })
   email: string;
 
   @ApiProperty({
@@ -41,7 +41,7 @@ export class AuthSignInDto {
     example: "test01@gmail.com"
   })
   @IsEmail({}, { message: 'Invalid email format' })
-  @MaxLength(50, { message: 'Email must not exceed 40 characters' })
+  @MaxLength(30, { message: 'Email must not exceed 30 characters' })
   email: string;
 
   @ApiProperty({

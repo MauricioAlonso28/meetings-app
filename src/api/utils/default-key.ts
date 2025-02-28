@@ -1,1 +1,0 @@
-export const DEFAULT_KEY = "28%THIS-IS-A-SUPER-KEY%28"
