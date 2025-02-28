@@ -1,8 +1,8 @@
-import { HttpStatus, NestMiddleware } from "@nestjs/common";
+import { HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
 import { ExtendedRequest } from "@/api/constants/config.interface";
 import { NextFunction, Response } from 'express'
 import { JwtService } from "@nestjs/jwt";
-import { DEFAULT_KEY } from "../utils/default-key";
+import { ConfigService } from "@nestjs/config";
 
 export class AuthLoggedInMiddleware implements NestMiddleware {
   use(
@@ -22,8 +22,14 @@ export class AuthLoggedInMiddleware implements NestMiddleware {
   }
 }
 
+@Injectable()
 export class AuthNotLoggedInMiddleware implements NestMiddleware {
-  use(
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService
+  ){}
+
+  async use(
     req: ExtendedRequest,
     res: Response,
     next: NextFunction
@@ -35,15 +41,12 @@ export class AuthNotLoggedInMiddleware implements NestMiddleware {
         message: 'Unauthorized: You are not logged in',
       })
     }
-
-    const jwtService = new JwtService()
   
     try {
-      const user = jwtService.verifyAsync(token,
-        { secret: DEFAULT_KEY }
+      const user = await this.jwtService.verifyAsync(token,
+        { secret: this.configService.get<string>('JWT_VERIFICATION_TOKEN_SECRET') }
       );
-      console.log("user")
-      console.log(user)
+
       req.user = user; 
       next(); 
     } catch (err) {
