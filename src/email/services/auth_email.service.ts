@@ -7,7 +7,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { createTransport, Transporter } from "nodemailer";
 import Mail = require("nodemailer/lib/mailer");
 import { Repository } from "typeorm";
-import { signedUpMailTemplate } from "../templates/auth_email.template";
+import { signedInMail, signedUpMailTemplate } from "../templates/auth_email.template";
 
 @Injectable()
 export class AuthEmailService {
@@ -32,9 +32,26 @@ export class AuthEmailService {
     const template = await signedUpMailTemplate()
 
     return this.sendMail({
-      from: this.configService.get<any>('EMAIL_USER'),
+      from: this.configService.get<string>('EMAIL_USER'),
       to: email,
       subject: "Welcome to Mundsoh!",
+      html: template
+    })
+  }
+
+  async signedInMail(email: string): Promise<void> {
+    const user = await this.authRepository.findOne({
+      where: { email }
+    })
+    
+    if (!user) throw new Error("The user doesn't exist")
+
+    const template = await signedInMail()
+    
+    return this.sendMail({
+      from: this.configService.get<string>('EMAIL_USER'),
+      to: email,
+      subject: "Welcome again!",
       html: template
     })
   }

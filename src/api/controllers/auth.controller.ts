@@ -67,6 +67,8 @@ export class AuthController {
 
       res.cookie("token", token.access_token)
 
+      await this.emailService.signedInMail(authDto.email)
+
       return res.send({
         message: "User logged in successfully",
       })

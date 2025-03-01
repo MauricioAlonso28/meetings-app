@@ -48,8 +48,11 @@ export class AuthService {
     const existingUser = await this.authRepository.findOne({
       where: { email: credentials.email }
     })
-
     if (!existingUser) throw new Error("User with this email doesn't exist")
+    
+    const matchedPasswords = await bcrypt.compare(credentials.password, existingUser.password)
+    
+    if (!matchedPasswords) throw new Error("The passwords doesn't match")
     
     const payload = {
       sub: existingUser.id,
