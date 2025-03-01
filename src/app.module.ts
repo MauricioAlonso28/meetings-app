@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DatabaseModule } from '@/database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { ApiModule } from '@/api/api.module';
+import { EmailModule } from '@/email/email.module';
 
 @Module({
   imports: [
@@ -9,7 +10,8 @@ import { ApiModule } from '@/api/api.module';
       isGlobal: true,
     }),
     ApiModule,
-    DatabaseModule
+    DatabaseModule,
+    EmailModule
   ],
 })
   
