@@ -8,8 +8,7 @@ import { Professional } from "@/database/entities/professional.entity";
 import { Customer } from "@/database/entities/customer.entity";
 import { AuthLoggedInMiddleware, AuthNotLoggedInMiddleware } from "../middlewares/auth.middleware";
 import { ConfigService } from "@nestjs/config";
-import { EmailModule } from "@/email/email.module";
-import { BullModule } from "@nestjs/bullmq";
+import { EmailQueueModule } from "@/jobs/modules/email-queue.module";
 
 @Module({
   imports: [
@@ -30,10 +29,7 @@ import { BullModule } from "@nestjs/bullmq";
         }
       }
     }),
-    // BullModule.registerQueue({
-    //   name: 'email-queue',
-    // }),
-    EmailModule
+    EmailQueueModule,
   ],
   controllers: [AuthController],
   providers: [

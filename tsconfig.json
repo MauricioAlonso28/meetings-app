@@ -12,7 +12,9 @@
       "@/*": ["./src/*"],
       "@api/*": ["./src/api/*"],
       "@database/*": ["./src/database/*"],
-      "@email/*": ["./src/email/*"]
+      "@email/*": ["./src/email/*"],
+      "@jobs/*": ["./src/jobs/*"],
+
     }
   },
   "include": ["**/*.ts", "**/*.tsx"]

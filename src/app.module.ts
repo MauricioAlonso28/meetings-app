@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '@/database/database.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ApiModule } from '@/api/api.module';
 import { EmailModule } from '@/email/email.module';
 import { BullModule } from '@nestjs/bullmq';
@@ -10,12 +10,18 @@ import { BullModule } from '@nestjs/bullmq';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    // BullModule.forRoot({
-    //   connection: {
-    //     host: '127.0.0.1',
-    //     port: 6379,
-    //   }
-    // }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => { 
+        return {
+          connection: {
+            host: configService.get<string>("REDIS_HOST"),
+            port: configService.get<number>("REDIS_PORT")
+          }
+        }
+      }
+    }),
     ApiModule,
     DatabaseModule,
     EmailModule
