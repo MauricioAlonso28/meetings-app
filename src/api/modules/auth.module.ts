@@ -9,6 +9,7 @@ import { Customer } from "@/database/entities/customer.entity";
 import { AuthLoggedInMiddleware, AuthNotLoggedInMiddleware } from "../middlewares/auth.middleware";
 import { ConfigService } from "@nestjs/config";
 import { EmailModule } from "@/email/email.module";
+import { BullModule } from "@nestjs/bullmq";
 
 @Module({
   imports: [
@@ -29,6 +30,9 @@ import { EmailModule } from "@/email/email.module";
         }
       }
     }),
+    // BullModule.registerQueue({
+    //   name: 'email-queue',
+    // }),
     EmailModule
   ],
   controllers: [AuthController],
