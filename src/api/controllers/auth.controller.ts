@@ -5,12 +5,14 @@ import { AuthSignInDto, AuthSignUpDto } from "@/api/DTOs/user.dto";
 import { Response } from 'express'
 import { ExtendedRequest } from "../constants/config.interface";
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { EmailQueueProcessor } from "@/jobs/services/email-queue.service";
 
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly emailQueue: EmailQueueProcessor
   ) { }
 
   @ApiOperation({
@@ -33,6 +35,8 @@ export class AuthController {
       const token = await this.authService.signUpService(authDto)
       
       res.cookie("token", token.access_token)
+
+      await this.emailQueue.signedUpEmailQueue(authDto.email)
 
       return res.send({
         message: "User registered successfully",
@@ -62,6 +66,8 @@ export class AuthController {
       const token = await this.authService.signInService(authDto)
 
       res.cookie("token", token.access_token)
+
+      await this.emailQueue.signedInEmailQueue(authDto.email)
 
       return res.send({
         message: "User logged in successfully",

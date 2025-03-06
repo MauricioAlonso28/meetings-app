@@ -8,6 +8,7 @@ import { Professional } from "@/database/entities/professional.entity";
 import { Customer } from "@/database/entities/customer.entity";
 import { AuthLoggedInMiddleware, AuthNotLoggedInMiddleware } from "../middlewares/auth.middleware";
 import { ConfigService } from "@nestjs/config";
+import { EmailQueueModule } from "@/jobs/modules/email-queue.module";
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { ConfigService } from "@nestjs/config";
           }
         }
       }
-    })
+    }),
+    EmailQueueModule,
   ],
   controllers: [AuthController],
   providers: [
