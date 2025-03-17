@@ -4,12 +4,27 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "@/database/entities/user.entity";
 import { ConfigService } from "@nestjs/config";
 import { createTransport } from "nodemailer";
+import { JwtModule } from "@nestjs/jwt";
+import { Token } from "@/database/entities/token.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User
-    ])
+      User,
+      Token
+    ]),
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => { 
+        return {
+          global: true,
+          secret: configService.get<string>("JWT_EMAIL_TOKEN_SECRET"),
+          signOptions: {
+            expiresIn: configService.get<string>("JWT_EMAIL_TOKEN_EXPIRATION_TIME")
+          }
+        }
+      }
+    })
   ],
   providers: [
     AuthEmailService,
