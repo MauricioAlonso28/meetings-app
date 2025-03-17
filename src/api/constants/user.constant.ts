@@ -8,8 +8,13 @@ export type UserPassword = {
   password: string;
 }
 
-export interface AuthSignUp extends UserEmail, UserPassword{
+export interface AuthSignUp extends UserEmail, UserPassword {
   role: UserRole
 }
 
-export interface AuthSignIn extends UserEmail, UserPassword {}
+export interface AuthSignIn extends UserEmail, UserPassword { }
+export interface AuthChangePassword extends UserEmail, UserPassword { }
+
+export interface AuthResetPassword extends AuthSignIn {
+  token: string
+}

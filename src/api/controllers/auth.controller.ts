@@ -1,18 +1,20 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Req, Res } from "@nestjs/common";
 import { AuthService } from "@/api/services/auth.service";
 import { handleError } from "@/api/utils/error-handler.util";
-import { AuthSignInDto, AuthSignUpDto } from "@/api/DTOs/user.dto";
+import { AuthChangePasswordDto, AuthEmailDto, AuthIdDto, AuthResetPasswordDto, AuthSignInDto, AuthSignUpDto } from "@/api/DTOs/user.dto";
 import { Response } from 'express'
 import { ExtendedRequest } from "../constants/config.interface";
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { EmailQueueProcessor } from "@/jobs/services/email-queue.service";
+import { AuthQueueProcessor } from "@/jobs/services/auth-queue.service";
 
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly emailQueue: EmailQueueProcessor
+    private readonly emailQueue: EmailQueueProcessor,
+    private readonly authQueue: AuthQueueProcessor
   ) { }
 
   @ApiOperation({
@@ -20,7 +22,6 @@ export class AuthController {
   })
   @ApiCreatedResponse({
     description: "User signed up successfully",
-    type: AuthSignUpDto
   })
   @ApiBadRequestResponse({
     description: "Invalid request",
@@ -39,7 +40,7 @@ export class AuthController {
       await this.emailQueue.signedUpEmailQueue(authDto.email)
 
       return res.send({
-        message: "User registered successfully",
+        message: "User registered successfully!",
       })
     } catch (error) {
       handleError(error, res)
@@ -51,7 +52,6 @@ export class AuthController {
   })
   @ApiOkResponse({
     description: "User signed in successfully",
-    type: AuthSignInDto
   })
   @ApiBadRequestResponse({
     description: "Invalid request",
@@ -70,7 +70,7 @@ export class AuthController {
       await this.emailQueue.signedInEmailQueue(authDto.email)
 
       return res.send({
-        message: "User logged in successfully",
+        message: "User logged in successfully!",
       })
     } catch (error) {
       handleError(error, res)
@@ -98,6 +98,105 @@ export class AuthController {
 
       return res.send({
         message: "User signed out successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  /******************************/
+  
+  @ApiOperation({
+    summary: "User forgot password",
+  })
+  @ApiOkResponse({
+    description: "Email sent to reset password successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put('forgot-password')
+  async forgotPassword(
+    @Res() res: Response,
+    @Body() body: AuthEmailDto,
+  ) { 
+    try {
+      await this.authService.forgotPasswordService({ email: body.email })
+
+      return res.send({
+        message: "Password reset email sent successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @ApiOperation({
+    summary: "User reset password",
+  })
+  @ApiOkResponse({
+    description: "Password reset successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put('reset-password')
+  async resetPassword(
+    @Res() res: Response,
+    @Body() body: AuthResetPasswordDto
+  ) {
+    try {
+      await this.authService.resetPasswordService({
+        email: body.email,
+        password: body.password,
+        token: body.token
+      })
+
+      await this.emailQueue.updatedPasswordEmailQueue(body.email)
+
+      await this.authQueue.tokenRemovedAfterUpdate(body.token)
+
+      return res.send({
+        message: "Password reset successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  /******************************/
+
+  @ApiOperation({
+    summary: "User updated password",
+  })
+  @ApiOkResponse({
+    description: "Password updated successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put('update-password/:id')
+  async changePassword(
+    @Res() res: Response,
+    @Req() req: ExtendedRequest,
+    @Body() body: AuthChangePasswordDto,
+    @Param() param: AuthIdDto
+  ) {
+    try {
+      if (param.id !== req.user.sub) throw new Error("Unauthorized: You can only change your own password")
+      
+      await this.authService.changePasswordService({
+        email: req.user.email,
+        password: body.password,
+      })
+
+      await this.emailQueue.updatedPasswordEmailQueue(req.user.email)
+
+      return res.send({
+        message: "Password updated successfully",
       })
     } catch (error) {
       handleError(error, res)

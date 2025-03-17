@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ApiModule } from '@/api/api.module';
 import { EmailModule } from '@/email/email.module';
 import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
@@ -22,9 +24,11 @@ import { BullModule } from '@nestjs/bullmq';
         }
       }
     }),
+    ScheduleModule.forRoot(),
     ApiModule,
     DatabaseModule,
-    EmailModule
+    EmailModule,
+    JobsModule
   ],
 })
   
