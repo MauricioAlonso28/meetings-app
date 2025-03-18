@@ -6,7 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Transporter } from "nodemailer";
 import Mail = require("nodemailer/lib/mailer");
 import { Repository } from "typeorm";
-import { sendResetPasswordLinkMailTemplate, signedInMailTemplate, signedUpMailTemplate, updatedPasswordMailTemplate } from "../templates/auth_email.template";
+import { enabledMailTemplate, sendResetPasswordLinkMailTemplate, signedInMailTemplate, signedUpMailTemplate, updatedPasswordMailTemplate } from "../templates/auth_email.template";
 import { Token } from "@/database/entities/token.entity";
 
 @Injectable()
@@ -108,6 +108,17 @@ export class AuthEmailService {
       from: this.emailFrom,
       to: email,
       subject: "Your password has been updated",
+      html: template
+    })
+  }
+
+  async enabledMail(email: string): Promise<void> {
+    const template = await enabledMailTemplate()
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Your account was enabled",
       html: template
     })
   }

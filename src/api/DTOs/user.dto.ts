@@ -1,6 +1,6 @@
 import { UserRole } from '@/database/enums/user.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsString, IsStrongPassword, IsUUID, MaxLength, MinLength, NotEquals } from 'class-validator'
+import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID, MaxLength, MinLength, NotEquals } from 'class-validator'
 
 export class AuthSignUpDto {
   @ApiProperty({
@@ -133,4 +133,34 @@ export class AuthIdDto {
     message: "Note id must be uuid"
   })
   id: string;
+}
+
+export class AuthCompleteNameDto {
+  @ApiProperty({
+    description: 'The name must be string',
+    example: "John"
+  })
+  @IsString()
+  @MinLength(3, {
+    message: 'Name must be at least 3 characters long'
+  })
+  @MaxLength(50, {
+    message: 'Name must be at most 50 characters long'
+  })
+  @IsOptional()
+  name: string;
+
+  @ApiProperty({
+    description: 'The lastname must be string',
+    example: "Doe"
+  })
+  @IsString()
+  @MinLength(3, {
+    message: 'Lastname must be at least 3 characters long'
+  })
+  @MaxLength(50, {
+    message: 'Lastname must be at most 50 characters long'
+  })
+  @IsOptional()
+  lastname: string;
 }

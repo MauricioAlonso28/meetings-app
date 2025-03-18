@@ -62,3 +62,19 @@ export const updatedPasswordMailTemplate = async (email: string) => {
     </div>
   `
 }
+
+export const enabledMailTemplate = async () => {
+  return `
+    <div class="container">
+      <h1>🎉 Your Account is Now Enabled!</h1>
+      <p>Dear user,</p>
+      <p>We are pleased to inform you that your account has been successfully enabled. You can now access all features and services.</p>
+      <p>If you have any questions or need further assistance, feel free to contact our support team.</p>
+      <p>Enjoy your experience!</p>
+      <div class="footer">
+        <p>Best regards,</p>
+        <p><strong>Mundsoh Team</strong></p>
+      </div>
+    </div>
+  `
+}
