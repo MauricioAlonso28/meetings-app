@@ -4,6 +4,7 @@ import { AuthQueueProcessor } from "../services/auth-queue.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Token } from "@/database/entities/token.entity";
 import { AuthQueueProcess } from "../process/auth-queue.worker";
+import { User } from "@/database/entities/user.entity";
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { AuthQueueProcess } from "../process/auth-queue.worker";
       name: 'auth-queue',
     }),
     TypeOrmModule.forFeature([
-      Token
+      Token,
+      User
     ])
   ],
   providers: [

@@ -62,6 +62,8 @@ export class AuthModule implements NestModule {
         { path: "auth/profile/:email", method: RequestMethod.GET },
         { path: "auth/disable", method: RequestMethod.PUT },
         { path: "auth/enable", method: RequestMethod.PUT },
+        { path: "auth/delete-account-link", method: RequestMethod.DELETE },
+        { path: "auth/delete-account", method: RequestMethod.DELETE },
       )
   }
 };

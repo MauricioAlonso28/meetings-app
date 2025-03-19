@@ -164,3 +164,29 @@ export class AuthCompleteNameDto {
   @IsOptional()
   lastname: string;
 }
+
+
+export class DeleteAccountRequestDto {
+  @ApiProperty({
+    description: 'The token is unique',
+    example: "dpJhwGcrOiJIUzI1NiIsIn"
+  })
+  @IsString()
+  @MinLength(10, { message: 'Token must be at least 20 characters long'})
+  token: string
+
+  @ApiProperty({
+    description: 'The password must be strong',
+    example: "TesT01%%"
+  })
+  @IsStrongPassword({
+    minLength: 8,       
+    minLowercase: 2,     
+    minUppercase: 2,     
+    minNumbers: 2,      
+    minSymbols: 1,      
+  }, {
+    message: 'Password must be at least 8 characters long and include 2 uppercase letters, 2 lowercase letters, 2 numbers, and 1 symbol.'
+  })
+  password: string
+}

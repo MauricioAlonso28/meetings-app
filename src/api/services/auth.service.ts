@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { AuthChangePassword, AuthCompleteName, AuthGetProfile, AuthGetProfileByEmail, AuthId, AuthResetPassword, AuthSignIn, AuthSignUp, UserEmail, UserPassword } from "@/api/constants/user.constant";
+import { AuthChangePassword, AuthCompleteName, AuthGetProfile, AuthGetProfileByEmail, AuthId, AuthResetPassword, AuthSignIn, AuthSignUp, DeleteAccountCredentials, UserEmail, UserPassword } from "@/api/constants/user.constant";
 import { AuthEmailService } from "@/email/services/auth_email.service";
 import { ConfigService } from "@nestjs/config";
 import { Token } from "@/database/entities/token.entity";
@@ -159,32 +159,7 @@ export class AuthService {
     })
   }
 
-  async getProfileUserService(
-    credentials: AuthGetProfileByEmail
-  ): Promise<AuthGetProfile>{
-    const user = await this.authRepository.findOne({
-      where: {
-        email: credentials.email
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        lastname: true,
-        createdAt: true,
-        role: true,
-        disabled: true,
-        banned: true
-      },
-    })
-
-    if (!user) throw new Error("User with this email doesn't exist")
-    if (credentials.role !== UserRole.ADMIN && user.id !== credentials.id) {
-      throw new Error("You don't have permission to access this user")
-    }
-
-    return user
-  }
+  /******************************/
 
   async disableProfileService(
     credentials: UserEmail
@@ -213,5 +188,83 @@ export class AuthService {
     if (!user.disabled) throw new Error("User is already enabled")
     
     await this.authRepository.update({ email: user.email }, { disabled: false })
+  }
+
+  /******************************/
+
+  async getProfileUserService(
+    credentials: AuthGetProfileByEmail
+  ): Promise<AuthGetProfile>{
+    const user = await this.authRepository.findOne({
+      where: {
+        email: credentials.email
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastname: true,
+        createdAt: true,
+        role: true,
+        disabled: true,
+        banned: true
+      },
+    })
+
+    if (!user) throw new Error("User with this email doesn't exist")
+    if (credentials.role !== UserRole.ADMIN && user.id !== credentials.id) {
+      throw new Error("You don't have permission to access this user")
+    }
+
+    return user
+  }
+
+  /******************************/
+
+  async deleteAccountSendLinkService(
+    credentials: UserEmail
+  ): Promise<void> {
+    const existingUser = await this.authRepository.findOne({
+      where: { email: credentials.email }
+    })
+
+    if (!existingUser) throw new Error("User with this email doesn't exist")
+
+    await this.emailService.sendDeleteAccountLinkMail(credentials.email)
+  }
+
+  async deleteAccountService(
+    credentials: DeleteAccountCredentials
+  ): Promise < void> {
+    const emailTokenSecret = this.configService.get<string>("JWT_EMAIL_TOKEN_SECRET")
+    
+    const tokenFound = await this.tokenRepository.findOne({
+      where: { token: credentials.token }
+    })
+
+    if(!tokenFound) throw new Error("Invalid token or it has already been used")
+  
+    const token = await this.jwtService.verifyAsync(credentials.token, {
+      secret: emailTokenSecret
+    })
+
+    if (credentials.email !== token.email) throw new Error("Invalid token for this email")
+    
+    const user = await this.authRepository.findOne({
+      where: { email: token.email }
+    })
+
+    if (!user) throw new Error("User with this email doesn't exist")
+    if (user.deleteAt) throw new Error("this user is already deleted")
+    
+    const matchedPasswords = await bcrypt.compare(credentials.password, user.password)
+    
+    if (!matchedPasswords) throw new Error("Incorrect password")
+    
+    await this.authRepository.update({
+      email: credentials.email
+    }, {
+      deleteAt: new Date()
+    })
   }
 }

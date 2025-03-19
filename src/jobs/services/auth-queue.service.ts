@@ -25,10 +25,21 @@ export class AuthQueueProcessor extends WorkerHost {
     console.log(`Job ${job.id} completed`);
   }
 
-  async tokenRemovedAfterUpdate(token: string): Promise<void> {
+  async tokenRemoved(token: string): Promise<void> {
     await this.authQueue.add(
       "auth-token-removed",
       { token },
+      {
+        delay: 3000,
+        lifo: true
+      },
+    )
+  }
+
+  async deleteDetailsProfile(id: string): Promise<void> {
+    await this.authQueue.add(
+      "auth-delete-profile",
+      { id },
       {
         delay: 3000,
         lifo: true

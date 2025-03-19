@@ -1,10 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, Req, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Req, Res } from "@nestjs/common";
 import { AuthService } from "@/api/services/auth.service";
 import { handleError } from "@/api/utils/error-handler.util";
-import { AuthChangePasswordDto, AuthCompleteNameDto, AuthEmailDto, AuthIdDto, AuthResetPasswordDto, AuthSignInDto, AuthSignUpDto } from "@/api/DTOs/user.dto";
+import { AuthChangePasswordDto, AuthCompleteNameDto, AuthEmailDto, AuthIdDto, AuthResetPasswordDto, AuthSignInDto, AuthSignUpDto, DeleteAccountRequestDto } from "@/api/DTOs/user.dto";
 import { Response } from 'express'
 import { ExtendedRequest } from "../constants/config.interface";
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { EmailQueueProcessor } from "@/jobs/services/email-queue.service";
 import { AuthQueueProcessor } from "@/jobs/services/auth-queue.service";
 
@@ -156,7 +156,7 @@ export class AuthController {
 
       await this.emailQueue.updatedPasswordEmailQueue(body.email)
 
-      await this.authQueue.tokenRemovedAfterUpdate(body.token)
+      await this.authQueue.tokenRemoved(body.token)
 
       return res.send({
         message: "Password reset successfully",
@@ -233,35 +233,6 @@ export class AuthController {
     }
   }
 
-  @ApiOperation({
-    summary: "Get user profile",
-  })
-  @ApiOkResponse({
-    description: "User profile retrieved successfully",
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid request",
-  })
-  @HttpCode(HttpStatus.OK)
-  @Get("profile/:email")
-  async getProfileUser(
-    @Res() res: Response,
-    @Req() req: ExtendedRequest,
-    @Param() param: AuthEmailDto
-  ) {
-    try {
-      const response = await this.authService.getProfileUserService({
-        id: req.user.sub,
-        email: param.email,
-        role: req.user.role
-      })
-
-      return res.json(response)
-    } catch (error) {
-      handleError(error, res)
-    }
-  }
-
   /******************************/
 
   @ApiOperation({
@@ -316,6 +287,102 @@ export class AuthController {
 
       return res.send({
         message: "User account enabled successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  /******************************/
+
+  @ApiOperation({
+    summary: "Get user profile",
+  })
+  @ApiOkResponse({
+    description: "User profile retrieved successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get("profile/:email")
+  async getProfileUser(
+    @Res() res: Response,
+    @Req() req: ExtendedRequest,
+    @Param() param: AuthEmailDto
+  ) {
+    try {
+      const response = await this.authService.getProfileUserService({
+        id: req.user.sub,
+        email: param.email,
+        role: req.user.role
+      })
+
+      return res.json(response)
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  /******************************/
+
+  @ApiOperation({
+    summary: "Send account deletion link",
+  })
+  @ApiOkResponse({
+    description: "Account deletion link sent successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Delete("delete-account-link")
+  async deleteAccountSendLink(
+    @Res() res: Response,
+    @Req() req: ExtendedRequest
+  ) {
+    try {
+      await this.authService.deleteAccountSendLinkService({ email: req.user.email })
+
+      return res.send({
+        message: "Account verification email sent successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @ApiOperation({
+    summary: "Permanently delete user account",
+  })
+  @ApiNoContentResponse({
+    description: "User account deleted successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Delete("delete-account")
+  async deleteAccount(
+    @Res() res: Response,
+    @Req() req: ExtendedRequest,
+    @Body() body: DeleteAccountRequestDto
+  ) {
+    try {
+      await this.authService.deleteAccountService({
+        email: req.user.email,
+        password: body.password,
+        token: body.token
+      })
+
+      await this.emailQueue.deletedAccountEmailQueue(req.user.email)
+
+      await this.authQueue.tokenRemoved(body.token)
+
+      await this.authQueue.deleteDetailsProfile(req.user.sub)
+
+      return res.send({
+        message: "Account deleted successfully",
       })
     } catch (error) {
       handleError(error, res)

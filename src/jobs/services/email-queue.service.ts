@@ -68,4 +68,15 @@ export class EmailQueueProcessor extends WorkerHost {
       },
     )
   }
+
+  async deletedAccountEmailQueue(email: string): Promise<void> {
+    await this.emailQueue.add(
+      "deleted-account-email",
+      { email },
+      {
+        delay: 1000,
+        lifo: true
+      },
+    )
+  }
 }

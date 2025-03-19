@@ -10,7 +10,7 @@ export const signedUpMailTemplate = async () => {
           If you have any questions, feel free to contact us.
         </p>
         <p style="color: #333; font-size: 14px; font-weight: bold; margin-top: 30px;">Best regards,</p>
-        <p style="color: #666; font-size: 14px;">The Mundosh Team</p>
+        <p style="color: #666; font-size: 14px;">The Mundsoh Team</p>
       </div>
     </div>
   `;
@@ -58,7 +58,7 @@ export const updatedPasswordMailTemplate = async (email: string) => {
       <p>For your security, we recommend using a strong password and never sharing it with anyone.</p>
       <hr style="border: none; border-top: 1px solid #ddd;">
       <p style="text-align: center; color: #777; font-size: 12px;">This is an automated message. Please do not reply.</p>
-      <p style="text-align: center; color: #777; font-size: 12px;">&copy; ${new Date().getFullYear()} Mundsoh. All rights reserved.</p>
+      <p style="text-align: center; color: #777; font-size: 12px;">&copy; ${new Date().getFullYear()} The Mundsoh team. All rights reserved.</p>
     </div>
   `
 }
@@ -73,8 +73,37 @@ export const enabledMailTemplate = async () => {
       <p>Enjoy your experience!</p>
       <div class="footer">
         <p>Best regards,</p>
-        <p><strong>Mundsoh Team</strong></p>
+        <p><strong>The Mundsoh Team</strong></p>
       </div>
+    </div>
+  `
+}
+
+export const sendDeletAccountLinkMailTemplate = async (url: string) => {
+  return `
+    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.5;">
+      <p>Hey,</p>
+      <p>We received a request to delete your account.</p>
+      <p>If you want to proceed, click the link below to confirm the deletion:</p>
+      <p><a href="${url}" style="color:rgb(192, 57, 43); text-decoration: none;">Delete your account</a></p>
+      <p>This link will expire in 15 minutes.</p>
+      <p>If you did not request this, you can ignore this email. Your account will remain safe.</p>
+      <p>Best regards,<br>The Mundsoh Team</p>
+    </div>
+  `
+}
+
+export const deletedAccountMailtemplate = async (email: string, supportEmail: string) => {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+      <h2 style="color: #333; text-align: center;">👋 Account Successfully Deleted</h2>
+      <p>Hello,</p>
+      <p>We want to inform you that your account associated with <strong>${email}</strong> has been successfully deleted.</p>
+      <p>If this was a mistake or if you ever decide to return, we're always here for you! You can create a new account anytime and rejoin our community.</p>
+      <p>If you need assistance, feel free to <a href="${supportEmail}" style="color: #007bff; text-decoration: none;">contact us</a>.</p>
+      <hr style="border: none; border-top: 1px solid #ddd;">
+      <p style="text-align: center; color: #777; font-size: 12px;">This is an automated message. Please do not reply.</p>
+      <p style="text-align: center; color: #777; font-size: 12px;">&copy; ${new Date().getFullYear()} The Mundsoh team. All rights reserved.</p>
     </div>
   `
 }

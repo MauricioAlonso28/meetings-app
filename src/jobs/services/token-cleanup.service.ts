@@ -1,6 +1,6 @@
 import { Token } from "@/database/entities/token.entity";
 import { Injectable } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { LessThan, Repository } from "typeorm";
 
@@ -11,13 +11,17 @@ export class TokenCleanupService {
     private readonly tokenRepository: Repository<Token>,
   ) { }
   
-  @Cron("0 0 */1 * * *", {
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, {
     name: "expired-token"
   })
   async removedExpiredTokens() { 
-    const nowDate = new Date()
-    const tokensFound = await this.tokenRepository.delete({ expiresAt: LessThan(nowDate)})
-
-    console.log("Expired tokens were removed: ", tokensFound.affected)
+    try {
+      const nowDate = new Date()
+      const { affected } = await this.tokenRepository.delete({ expiresAt: LessThan(nowDate)})
+  
+      console.log(`[${new Date().toISOString()}] ✅ Expired tokens removed: ${affected}`);
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}]`)
+    }
   }
 }
