@@ -3,6 +3,9 @@ import { ExtendedRequest } from "@/api/constants/config.interface";
 import { NextFunction, Response } from 'express'
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "@/database/entities/user.entity";
+import { Repository } from "typeorm";
 
 export class AuthLoggedInMiddleware implements NestMiddleware {
   use(
@@ -27,7 +30,7 @@ export class AuthNotLoggedInMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService
-  ){}
+  ) {}
 
   async use(
     req: ExtendedRequest,
@@ -53,6 +56,43 @@ export class AuthNotLoggedInMiddleware implements NestMiddleware {
       return res.status(HttpStatus.UNAUTHORIZED).send({
         message: "Invalid token",
       });
+    }
+  }
+}
+
+@Injectable()
+export class BannedUserMiddleware implements NestMiddleware {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) { }
+  
+  async use(
+    req: ExtendedRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { sub } = req.user
+     
+      const user = await this.userRepository.findOne({
+        where: { id: sub },
+        select: {
+          banned: true,
+        }
+      });
+
+      if (user?.banned) {
+        return res.status(HttpStatus.FORBIDDEN).send({
+          message: "You are banned from this application",
+        })
+      }
+
+      next()
+    } catch (error) {
+      return res.send({
+        message: `Error checking user status: ${error}`,
+      })
     }
   }
 }

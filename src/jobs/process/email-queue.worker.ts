@@ -13,10 +13,18 @@ export class EmailQueueProcess extends WorkerHost{
   }
 
   async process(job: Job): Promise<void> {
-    if (job.name === "signed-up-email") {
-      await this.emailService.signedUpMail(job.data.email)
-    } else if (job.name === "signed-in-email") {
-      await this.emailService.signedInMail(job.data.email)
+    const { name, data } = job
+
+    if (name === "signed-up-email") {
+      await this.emailService.signedUpMail(data.email)
+    } else if (name === "signed-in-email") {
+      await this.emailService.signedInMail(data.email)
+    } else if (name == "updated-password-email") {
+      await this.emailService.updatedPasswordMail(data.email)
+    } else if (name == "enabled-email") {
+      await this.emailService.enabledMail(data.email)
+    } else if (name == "deleted-account-email") {
+      await this.emailService.deletedAccountMail(data.email)
     }
   }
 }

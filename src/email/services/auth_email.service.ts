@@ -1,22 +1,56 @@
 import { User } from "@/database/entities/user.entity";
-import { TransportType } from "@nestjs-modules/mailer/dist/interfaces/mailer-options.interface";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
-import { createTransport, Transporter } from "nodemailer";
+import { Transporter } from "nodemailer";
 import Mail = require("nodemailer/lib/mailer");
 import { Repository } from "typeorm";
-import { signedInMail, signedUpMailTemplate } from "../templates/auth_email.template";
+import { deletedAccountMailtemplate, enabledMailTemplate, sendDeletAccountLinkMailTemplate, sendResetPasswordLinkMailTemplate, signedInMailTemplate, signedUpMailTemplate, updatedPasswordMailTemplate } from "../templates/auth_email.template";
+import { Token } from "@/database/entities/token.entity";
 
 @Injectable()
 export class AuthEmailService {
+  private frontendUrl
+  private emailFrom
+  private createToken
+
   constructor(
     @InjectRepository(User)
     private readonly authRepository: Repository<User>,
+    @InjectRepository(Token)
+    private readonly tokenRepository: Repository<Token>,
+    private readonly jwtService: JwtService,
     @Inject("EMAIL_TRANSPORT") private readonly nodemailerTransport: Transporter,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    const frontendUrlVariable = this.configService.get<string>("FRONTEND_URL")
+    const emailFromVariable = this.configService.get<string>('EMAIL_USER')
+    
+    this.frontendUrl = frontendUrlVariable
+    this.emailFrom = emailFromVariable
+
+    this.createToken = async (email: string): Promise<string> => {
+      const expiresAtCreate = new Date(Date.now() + 15 * 60 * 1000)
+
+      const payload = {
+        email,
+        expiresAt: expiresAtCreate,
+      }
+
+      const newToken = this.tokenRepository.create({
+        token: await this.jwtService.signAsync(payload),
+        email,
+        expiresAt: expiresAtCreate
+      })
+
+      await this.tokenRepository.delete({ email })
+
+      const { token } = await this.tokenRepository.save(newToken)
+
+      return token
+    }
+  }
 
   async sendMail(options: Mail.Options): Promise<void>{
     return this.nodemailerTransport.sendMail(options);
@@ -32,7 +66,7 @@ export class AuthEmailService {
     const template = await signedUpMailTemplate()
 
     return this.sendMail({
-      from: this.configService.get<string>('EMAIL_USER'),
+      from: this.emailFrom,
       to: email,
       subject: "Welcome to Mundsoh!",
       html: template
@@ -46,12 +80,87 @@ export class AuthEmailService {
     
     if (!user) throw new Error("The user doesn't exist")
 
-    const template = await signedInMail()
+    const template = await signedInMailTemplate()
     
     return this.sendMail({
-      from: this.configService.get<string>('EMAIL_USER'),
+      from: this.emailFrom,
       to: email,
       subject: "Welcome again!",
+      html: template
+    })
+  }
+
+  /******************************/
+
+  async sendResetPasswordLinkMail(email: string): Promise<void> {
+    if (!this.frontendUrl) return
+
+    const token = await this.createToken(email)
+
+    const frontendUrlSend = `${this.frontendUrl}/reset-password/token?=${token}`
+
+    const template = await sendResetPasswordLinkMailTemplate(frontendUrlSend)
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Reset your password",
+      html: template
+    })
+  }
+
+  async updatedPasswordMail(email: string): Promise<void> {
+    if(!this.emailFrom) return
+
+    const template = await updatedPasswordMailTemplate(this.emailFrom)
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Your password has been updated",
+      html: template
+    })
+  }
+
+  async enabledMail(email: string): Promise<void> {
+    const template = await enabledMailTemplate()
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Your account was enabled",
+      html: template
+    })
+  }
+
+  /******************************/
+
+  async sendDeleteAccountLinkMail(email: string): Promise<void> {
+    if (!this.frontendUrl) return
+    
+    const token = await this.createToken(email)
+
+    const frontendUrlSend = `${this.frontendUrl}/delete-account/token?=${token}`
+
+    const template = await sendDeletAccountLinkMailTemplate(frontendUrlSend)
+  
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Delete your account",
+      html: template
+    })
+  }
+
+  async deletedAccountMail(email: string): Promise<void> {
+    if(!this.emailFrom) return
+
+    const template = await deletedAccountMailtemplate(email, this.emailFrom)
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Your account has been deleted",
       html: template
     })
   }
