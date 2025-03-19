@@ -6,13 +6,14 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Transporter } from "nodemailer";
 import Mail = require("nodemailer/lib/mailer");
 import { Repository } from "typeorm";
-import { sendResetPasswordLinkMailTemplate, signedInMailTemplate, signedUpMailTemplate, updatedPasswordMailTemplate } from "../templates/auth_email.template";
+import { deletedAccountMailtemplate, enabledMailTemplate, sendDeletAccountLinkMailTemplate, sendResetPasswordLinkMailTemplate, signedInMailTemplate, signedUpMailTemplate, updatedPasswordMailTemplate } from "../templates/auth_email.template";
 import { Token } from "@/database/entities/token.entity";
 
 @Injectable()
 export class AuthEmailService {
   private frontendUrl
   private emailFrom
+  private createToken
 
   constructor(
     @InjectRepository(User)
@@ -28,6 +29,27 @@ export class AuthEmailService {
     
     this.frontendUrl = frontendUrlVariable
     this.emailFrom = emailFromVariable
+
+    this.createToken = async (email: string): Promise<string> => {
+      const expiresAtCreate = new Date(Date.now() + 15 * 60 * 1000)
+
+      const payload = {
+        email,
+        expiresAt: expiresAtCreate,
+      }
+
+      const newToken = this.tokenRepository.create({
+        token: await this.jwtService.signAsync(payload),
+        email,
+        expiresAt: expiresAtCreate
+      })
+
+      await this.tokenRepository.delete({ email })
+
+      const { token } = await this.tokenRepository.save(newToken)
+
+      return token
+    }
   }
 
   async sendMail(options: Mail.Options): Promise<void>{
@@ -73,23 +95,11 @@ export class AuthEmailService {
   async sendResetPasswordLinkMail(email: string): Promise<void> {
     if (!this.frontendUrl) return
 
-    const expiresAtCreate = new Date(Date.now() + 15 * 60 * 1000)
+    const token = await this.createToken(email)
 
-    const payload = {
-      email,
-      expiresAt: expiresAtCreate,
-    }
+    const frontendUrlSend = `${this.frontendUrl}/reset-password/token?=${token}`
 
-    const newToken = this.tokenRepository.create({
-      token: await this.jwtService.signAsync(payload),
-      expiresAt: expiresAtCreate
-    })
-
-    const { token } = await this.tokenRepository.save(newToken)
-
-    this.frontendUrl = `${this.frontendUrl}/reset-password/token?=${token}`
-
-    const template = await sendResetPasswordLinkMailTemplate(this.frontendUrl)
+    const template = await sendResetPasswordLinkMailTemplate(frontendUrlSend)
 
     return this.sendMail({
       from: this.emailFrom,
@@ -108,6 +118,49 @@ export class AuthEmailService {
       from: this.emailFrom,
       to: email,
       subject: "Your password has been updated",
+      html: template
+    })
+  }
+
+  async enabledMail(email: string): Promise<void> {
+    const template = await enabledMailTemplate()
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Your account was enabled",
+      html: template
+    })
+  }
+
+  /******************************/
+
+  async sendDeleteAccountLinkMail(email: string): Promise<void> {
+    if (!this.frontendUrl) return
+    
+    const token = await this.createToken(email)
+
+    const frontendUrlSend = `${this.frontendUrl}/delete-account/token?=${token}`
+
+    const template = await sendDeletAccountLinkMailTemplate(frontendUrlSend)
+  
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Delete your account",
+      html: template
+    })
+  }
+
+  async deletedAccountMail(email: string): Promise<void> {
+    if(!this.emailFrom) return
+
+    const template = await deletedAccountMailtemplate(email, this.emailFrom)
+
+    return this.sendMail({
+      from: this.emailFrom,
+      to: email,
+      subject: "Your account has been deleted",
       html: template
     })
   }

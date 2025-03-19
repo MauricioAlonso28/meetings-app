@@ -5,6 +5,9 @@ export class Token {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @Column()
+  email: string
+
   @Column({
     unique: true
   })

@@ -1,6 +1,6 @@
 import { UserRole } from '@/database/enums/user.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsString, IsStrongPassword, IsUUID, MaxLength, MinLength, NotEquals } from 'class-validator'
+import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID, MaxLength, MinLength, NotEquals } from 'class-validator'
 
 export class AuthSignUpDto {
   @ApiProperty({
@@ -133,4 +133,60 @@ export class AuthIdDto {
     message: "Note id must be uuid"
   })
   id: string;
+}
+
+export class AuthCompleteNameDto {
+  @ApiProperty({
+    description: 'The name must be string',
+    example: "John"
+  })
+  @IsString()
+  @MinLength(3, {
+    message: 'Name must be at least 3 characters long'
+  })
+  @MaxLength(50, {
+    message: 'Name must be at most 50 characters long'
+  })
+  @IsOptional()
+  name: string;
+
+  @ApiProperty({
+    description: 'The lastname must be string',
+    example: "Doe"
+  })
+  @IsString()
+  @MinLength(3, {
+    message: 'Lastname must be at least 3 characters long'
+  })
+  @MaxLength(50, {
+    message: 'Lastname must be at most 50 characters long'
+  })
+  @IsOptional()
+  lastname: string;
+}
+
+
+export class DeleteAccountRequestDto {
+  @ApiProperty({
+    description: 'The token is unique',
+    example: "dpJhwGcrOiJIUzI1NiIsIn"
+  })
+  @IsString()
+  @MinLength(10, { message: 'Token must be at least 20 characters long'})
+  token: string
+
+  @ApiProperty({
+    description: 'The password must be strong',
+    example: "TesT01%%"
+  })
+  @IsStrongPassword({
+    minLength: 8,       
+    minLowercase: 2,     
+    minUppercase: 2,     
+    minNumbers: 2,      
+    minSymbols: 1,      
+  }, {
+    message: 'Password must be at least 8 characters long and include 2 uppercase letters, 2 lowercase letters, 2 numbers, and 1 symbol.'
+  })
+  password: string
 }

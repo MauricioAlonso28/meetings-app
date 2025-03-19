@@ -57,4 +57,26 @@ export class EmailQueueProcessor extends WorkerHost {
       },
     )
   }
+
+  async enabledEmailQueue(email: string): Promise<void> {
+    await this.emailQueue.add(
+      "enabled-email",
+      { email },
+      {
+        delay: 1000,
+        lifo: true
+      },
+    )
+  }
+
+  async deletedAccountEmailQueue(email: string): Promise<void> {
+    await this.emailQueue.add(
+      "deleted-account-email",
+      { email },
+      {
+        delay: 1000,
+        lifo: true
+      },
+    )
+  }
 }

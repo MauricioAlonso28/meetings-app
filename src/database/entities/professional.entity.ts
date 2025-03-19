@@ -16,11 +16,6 @@ export class Professional {
   user: User
 
   @Column({
-    nullable: true
-  })
-  lastname: string
-
-  @Column({
     type: "date",
     nullable: true
   })
@@ -28,7 +23,7 @@ export class Professional {
 
   @Column({
     type: "varchar",
-    length: 560,
+    length: 1000,
     nullable: true
   })
   description: string

@@ -13,7 +13,9 @@ export class User {
   })
   email: string
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   password: string
 
   @Column({
@@ -22,12 +24,17 @@ export class User {
   name: string
 
   @Column({
+    nullable: true
+  })
+  lastname: string
+
+  @Column({
     default: false
   })
   banned: boolean
 
   @Column({
-    default: false
+    default: false,
   })
   disabled: boolean
 
@@ -41,6 +48,12 @@ export class User {
     name: "createdAt"
   })
   createdAt: Date
+
+  @Column({
+    name: "deleteAt",
+    nullable: true
+  })
+  deleteAt: Date
 
   @OneToOne(() => Professional,
     (professional) => professional.user,

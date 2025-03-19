@@ -15,11 +15,6 @@ export class Customer {
   user: User
 
   @Column({
-    nullable: true
-  })
-  lastname: string
-
-  @Column({
     type: "date",
     nullable: true
   })
@@ -27,7 +22,7 @@ export class Customer {
 
   @Column({
     type: "varchar",
-    length: 560,
+    length: 1000,
     nullable: true
   })
   description: string

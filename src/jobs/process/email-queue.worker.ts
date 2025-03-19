@@ -21,6 +21,10 @@ export class EmailQueueProcess extends WorkerHost{
       await this.emailService.signedInMail(data.email)
     } else if (name == "updated-password-email") {
       await this.emailService.updatedPasswordMail(data.email)
+    } else if (name == "enabled-email") {
+      await this.emailService.enabledMail(data.email)
+    } else if (name == "deleted-account-email") {
+      await this.emailService.deletedAccountMail(data.email)
     }
   }
 }
