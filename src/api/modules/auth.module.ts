@@ -40,7 +40,6 @@ import { AuthQueueModule } from "@/jobs/modules/auth-queue.module";
   controllers: [AuthController],
   providers: [
     AuthService,
-    AuthNotLoggedInMiddleware
   ]
 })
 export class AuthModule implements NestModule {

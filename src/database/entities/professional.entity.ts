@@ -40,6 +40,11 @@ export class Professional {
   specialization: string
 
   @Column({
+    nullable: true
+  })
+  nationality: string
+
+  @Column({
     type: "enum",
     enum: ProfessionalVisibility,
     default: ProfessionalVisibility.PRIVATE
