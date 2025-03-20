@@ -1,0 +1,100 @@
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Req, Res } from "@nestjs/common";
+import { ExtendedRequest } from "../constants/config.interface";
+import { Response } from 'express'
+import { CreateProfessionalProfileDto } from "../DTOs/professional.dto";
+import { handleError } from "../utils/error-handler.util";
+import { ProfessionalService } from "../services/professional.service";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+
+@Controller("professional")
+export class ProfessionalController {
+  constructor(
+    private readonly professionalService: ProfessionalService
+  ) { }
+  
+  @ApiOperation({
+    summary: "Create a professional",
+  })
+  @ApiCreatedResponse({
+    description: "Professional created successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @Post("create")
+  async postProfessional(
+    @Req() req: ExtendedRequest,
+    @Res() res: Response,
+    @Body() body: CreateProfessionalProfileDto
+  ) {
+    try {
+      await this.professionalService.postProfessionalService({
+        userId: req.user.sub,
+        ...body
+      })
+
+      return res.send({
+        message: "Professional created successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @ApiOperation({
+    summary: "Get professional profile",
+  })
+  @ApiOkResponse({
+    description: "Professional profile retrieved successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get("profile")
+  async getProfessionalProfile(
+    @Req() req: ExtendedRequest,
+    @Res() res: Response
+  ) {
+    try {
+      const response = await this.professionalService.getProfessionalProfileService({
+        userId: req.user.sub,
+      })
+
+      return res.json(response)
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @ApiOperation({
+    summary: "Update professional user profile",
+  })
+  @ApiOkResponse({
+    description: "Professional profile updated successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put("update-profile")
+  async updateProfessionalProfile(
+    @Req() req: ExtendedRequest,
+    @Res() res: Response,
+    @Body() body: CreateProfessionalProfileDto
+  ) {
+    try {
+      await this.professionalService.updateProfessionalProfileService({
+        userId: req.user.sub,
+        ...body
+      })
+
+      return res.send({
+        message: "Professional profile updated successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+}

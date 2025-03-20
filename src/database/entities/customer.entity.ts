@@ -28,6 +28,11 @@ export class Customer {
   description: string
 
   @Column({
+    nullable: true
+  })
+  nationality: string
+
+  @Column({
     type: "varchar",
     nullable: true
   })

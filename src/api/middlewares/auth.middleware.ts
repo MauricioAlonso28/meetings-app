@@ -96,3 +96,35 @@ export class BannedUserMiddleware implements NestMiddleware {
     }
   }
 }
+
+@Injectable()
+export class AuthExistUser implements NestMiddleware {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) { }
+  
+  async use(
+    req: ExtendedRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { email } = req.user
+
+      const user = await this.userRepository.findOne({ where: { email } });
+
+      if (!user) {
+        return res.status(HttpStatus.NOT_FOUND).send({
+          message: "User not found",
+        })
+      }
+
+      next()
+    } catch (error) {
+      return res.send({
+        message: `Error checking user existing: ${error}`,
+      })
+    }
+  }
+}

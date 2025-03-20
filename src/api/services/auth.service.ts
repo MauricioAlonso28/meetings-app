@@ -171,7 +171,7 @@ export class AuthService {
     })
 
     if (!user) throw new Error("User with this email doesn't exist")
-    if (user.disabled) return
+    if (user.disabled) throw new Error("User is already disabled")
     
     await this.authRepository.update({ email: user.email }, { disabled: true })
   }
