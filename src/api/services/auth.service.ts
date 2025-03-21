@@ -36,7 +36,9 @@ export class AuthService {
     const newUser = this.authRepository.create({
       email: credentials.email,
       password: hashedPassword,
-      role: credentials.role
+      role: credentials.role,
+      name: credentials.name,
+      lastname: credentials.lastname
     })
 
     const userCreated = await this.authRepository.save(newUser)
