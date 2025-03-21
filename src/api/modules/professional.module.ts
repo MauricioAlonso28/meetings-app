@@ -34,6 +34,6 @@ export class ProfessionalModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthNotLoggedInMiddleware, AuthExistUser , BannedUserMiddleware)
-      .forRoutes('*');
+      .forRoutes(ProfessionalController);
   }
 }

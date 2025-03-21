@@ -9,7 +9,9 @@ export type UserPassword = {
 }
 
 export interface AuthSignUp extends UserEmail, UserPassword {
-  role: UserRole
+  role: UserRole,
+  name: string;
+  lastname: string
 }
 
 export interface AuthSignIn extends UserEmail, UserPassword {}
