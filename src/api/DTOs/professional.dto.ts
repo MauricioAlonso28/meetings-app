@@ -1,4 +1,5 @@
-import { IsDate, IsOptional, IsString, IsUrl, MaxLength, MinLength } from "class-validator";
+import { ProfessionalVisibility } from "@/database/enums/user.enum";
+import { IsDate, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from "class-validator";
 
 export class CreateProfessionalProfileDto {
   @IsOptional()
@@ -51,4 +52,9 @@ export class CreateProfessionalProfileDto {
     message: "The nationality must be more than 3 characters"
   })
   nationality: string
+}
+
+export class VerificationVisibilityDto {
+  @IsEnum(ProfessionalVisibility)
+  visibility: ProfessionalVisibility
 }
