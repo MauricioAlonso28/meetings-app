@@ -381,6 +381,9 @@ export class AuthController {
 
       await this.authQueue.deleteDetailsProfile(req.user.sub)
 
+      req.user = null
+      res.clearCookie('token')
+
       return res.send({
         message: "Account deleted successfully",
       })

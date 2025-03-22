@@ -209,7 +209,7 @@ export class AuthService {
         createdAt: true,
         role: true,
         disabled: true,
-        banned: true
+        banned: true,
       },
     })
 
