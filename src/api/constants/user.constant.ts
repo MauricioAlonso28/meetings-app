@@ -14,21 +14,16 @@ export interface AuthSignUp extends UserEmail, UserPassword {
   lastname: string
 }
 
-export interface AuthSignIn extends UserEmail, UserPassword {}
-export interface AuthChangePassword extends UserEmail, UserPassword {}
-
 export interface AuthResetPassword extends AuthSignIn {
   token: string
 }
-
-export interface DeleteAccountCredentials extends AuthResetPassword {}
 
 export interface AuthId {
   id: string
 }
 
-export interface AuthGetProfileByEmail extends AuthId {
-  email: string
+export interface AuthGetProfileByEmail extends AuthId, UserEmail {
+  // email: string
   role: UserRole
 }
 
@@ -37,10 +32,17 @@ export interface AuthCompleteName extends AuthId {
   lastname?: string
 }
 
-export interface AuthGetProfile {
-  email: string
+export interface AuthGetProfile extends UserEmail {
+  // email: string
   name: string
   lastname: string
   createdAt: Date
   role: UserRole
 }
+
+export interface AuthSignIn extends UserEmail, UserPassword {}
+export interface AuthChangePassword extends UserEmail, UserPassword {}
+export interface DeleteAccountCredentials extends AuthResetPassword {}
+
+
+

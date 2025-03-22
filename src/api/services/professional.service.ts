@@ -62,20 +62,11 @@ export class ProfessionalService {
   async updateProfessionalProfileService(
     credentials: CreateProfessionalCredentials
   ): Promise<void> {
-    const professionalFound = await this.professionalRepository.findOne({
-      where: {
-        userId: credentials.userId
-      },
-      select: [
-        "age",
-        "description",
-        "image",
-        "nationality",
-        "specialization"
-      ]
+    const professionalFound = await this.professionalRepository.findOneBy({
+      userId: credentials.userId
     })
 
-    if (!professionalFound) throw new Error("Professional with this id doesn't exist")
+    if (!professionalFound) throw new Error("Professional with this id doesn't exist!")
 
     await this.professionalRepository.update({
       userId: credentials.userId
