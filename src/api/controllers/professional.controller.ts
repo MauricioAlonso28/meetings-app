@@ -31,6 +31,7 @@ export class ProfessionalController {
   ) {
     try {
       const ageFormatted = changeAndCompare(body.age)
+      
       if(ageFormatted < 18) throw new Error("Must be older or equal than 18")
 
       await this.professionalService.postProfessionalService({
@@ -96,6 +97,24 @@ export class ProfessionalController {
 
       return res.send({
         message: "Professional profile updated successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @Put("enable-visibility")
+  async enableVisibility(
+    @Req() req: ExtendedRequest,
+    @Res() res: Response,
+  ) {
+    try {
+      await this.professionalService.enableVisibilityService({
+        userId: req.user.sub
+      })
+
+      return res.send({
+        message: "Visibility enabled successfully",
       })
     } catch (error) {
       handleError(error, res)
