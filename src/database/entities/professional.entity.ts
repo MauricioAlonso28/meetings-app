@@ -16,6 +16,16 @@ export class Professional {
   user: User
 
   @Column({
+    nullable: true
+  })
+  name: string
+
+  @Column({
+    nullable: true
+  })
+  lastname: string
+
+  @Column({
     type: "date",
     nullable: true
   })

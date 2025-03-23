@@ -10,8 +10,6 @@ export type UserPassword = {
 
 export interface AuthSignUp extends UserEmail, UserPassword {
   role: UserRole,
-  name: string;
-  lastname: string
 }
 
 export interface AuthResetPassword extends AuthSignIn {
@@ -22,8 +20,7 @@ export interface AuthId {
   id: string
 }
 
-export interface AuthGetProfileByEmail extends AuthId, UserEmail {
-  // email: string
+export interface AuthGetProfileById extends AuthId {
   role: UserRole
 }
 
@@ -33,9 +30,6 @@ export interface AuthCompleteName extends AuthId {
 }
 
 export interface AuthGetProfile extends UserEmail {
-  // email: string
-  name: string
-  lastname: string
   createdAt: Date
   role: UserRole
 }

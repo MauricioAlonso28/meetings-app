@@ -3,7 +3,7 @@ import { User } from "@/database/entities/user.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CreateProfessionalCredentials, GetProfessionalProfile, ProfessionalProfileCredentials } from "../constants/professional.constant";
+import { CreateProfessionalCredentials, GetProfessionalProfile, ProfessionalProfileCredentials, UpdateProfessionalCredentials } from "../constants/professional.constant";
 
 @Injectable()
 export class ProfessionalService {
@@ -25,9 +25,13 @@ export class ProfessionalService {
 
     if (professionalFound) throw new Error("Professional with this id already exists")
     
+    const formattedAge = new Date(credentials.age).toISOString().split("T")[0]
+
     const professional = this.professionalRepository.create({
       userId: credentials.userId,
-      age: credentials.age,
+      name: credentials.name,
+      lastname: credentials.lastname,
+      age: formattedAge,
       description: credentials.description,
       image: credentials.image,
       specialization: credentials.specialization,
@@ -45,6 +49,8 @@ export class ProfessionalService {
         userId: credentials.userId
       },
       select: [
+        "name",
+        "lastname",
         "age",
         "description",
         "image",
@@ -60,7 +66,7 @@ export class ProfessionalService {
   }
 
   async updateProfessionalProfileService(
-    credentials: CreateProfessionalCredentials
+    credentials: UpdateProfessionalCredentials
   ): Promise<void> {
     const professionalFound = await this.professionalRepository.findOneBy({
       userId: credentials.userId
@@ -71,7 +77,6 @@ export class ProfessionalService {
     await this.professionalRepository.update({
       userId: credentials.userId
     }, {
-      age: credentials.age,
       description: credentials.description,
       image: credentials.image,
       nationality: credentials.nationality,
