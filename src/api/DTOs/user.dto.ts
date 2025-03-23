@@ -4,38 +4,6 @@ import { IsEmail, IsEnum, IsOptional, IsString, IsStrongPassword, IsUUID, Matche
 
 export class AuthSignUpDto {
   @ApiProperty({
-    description: 'The name must be string',
-    example: "John"
-  })
-  @MinLength(3, {
-    message: 'Name must be at least 3 characters long'
-  })
-  @MaxLength(50, {
-    message: 'Name must be at most 50 characters long'
-  })
-  @Matches(/^[A-Za-zÀ-ÿ]+$/, {
-    message: 'Name must only contain letters, no spaces or numbers'
-  })
-  @IsString()
-  name: string;
-
-  @ApiProperty({
-    description: 'The lastname must be string',
-    example: "Doe"
-  })
-  @MinLength(3, {
-    message: 'Lastname must be at least 3 characters long'
-  })
-  @MaxLength(50, {
-    message: 'Lastname must be at most 50 characters long'
-  })
-  @Matches(/^[A-Za-zÀ-ÿ]+$/, {
-    message: 'Lastname must only contain letters, no spaces or numbers'
-  })
-  @IsString()
-  lastname: string;
-
-  @ApiProperty({
     description: 'The email is unique',
     example: "test01@gmail.com"
   })

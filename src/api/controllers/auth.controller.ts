@@ -203,36 +203,6 @@ export class AuthController {
     }
   }
 
-  @ApiOperation({
-    summary: "User updated complete name",
-  })
-  @ApiOkResponse({
-    description: "Complete name updated successfully",
-  })
-  @ApiBadRequestResponse({
-    description: "Invalid request",
-  })
-  @HttpCode(HttpStatus.OK)
-  @Put("update-complete-name")
-  async updateCompleteName(
-    @Res() res: Response,
-    @Req() req: ExtendedRequest,
-    @Body() body: AuthCompleteNameDto
-  ) { 
-    try {
-      await this.authService.updateCompleteNameService({
-        ...body,
-        id: req.user.sub
-      })
-
-      return res.send({
-        message: "Complete name updated successfully",
-      })
-    } catch (error) {
-      handleError(error, res)
-    }
-  }
-
   /******************************/
 
   @ApiOperation({
@@ -305,17 +275,14 @@ export class AuthController {
     description: "Invalid request",
   })
   @HttpCode(HttpStatus.OK)
-  @Get("profile/:email")
+  @Get("profile")
   async getProfileUser(
     @Res() res: Response,
     @Req() req: ExtendedRequest,
-    @Param() param: AuthEmailDto
   ) {
     try {
       const response = await this.authService.getProfileUserService({
         id: req.user.sub,
-        email: param.email,
-        role: req.user.role
       })
 
       return res.json(response)
@@ -335,8 +302,8 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: "Invalid request",
   })
-  @HttpCode(HttpStatus.OK)
-  @Delete("delete-account-link")
+  @HttpCode(HttpStatus.CREATED)
+  @Post("delete-account-link")
   async deleteAccountSendLink(
     @Res() res: Response,
     @Req() req: ExtendedRequest

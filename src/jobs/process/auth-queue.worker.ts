@@ -36,8 +36,6 @@ export class AuthQueueProcess extends WorkerHost {
     await this.userRepository.update({ id }, {
       email: `deleted_${id}@deleted.com`,
       password: "",
-      name: "",
-      lastname: ""
     })
   }
 }
