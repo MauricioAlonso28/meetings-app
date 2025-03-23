@@ -1,10 +1,11 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Req, Res } from "@nestjs/common";
 import { ExtendedRequest } from "../constants/config.interface";
 import { Response } from 'express'
-import { CreateProfessionalProfileDto } from "../DTOs/professional.dto";
+import { CreateProfessionalProfileDto, UpdateProfessionalDto } from "../DTOs/professional.dto";
 import { handleError } from "../utils/error-handler.util";
 import { ProfessionalService } from "../services/professional.service";
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { changeAndCompare } from "../utils/reusable-functions";
 
 @Controller("professional")
 export class ProfessionalController {
@@ -29,6 +30,9 @@ export class ProfessionalController {
     @Body() body: CreateProfessionalProfileDto
   ) {
     try {
+      const ageFormatted = changeAndCompare(body.age)
+      if(ageFormatted < 18) throw new Error("Must be older or equal than 18")
+
       await this.professionalService.postProfessionalService({
         userId: req.user.sub,
         ...body
@@ -82,7 +86,7 @@ export class ProfessionalController {
   async updateProfessionalProfile(
     @Req() req: ExtendedRequest,
     @Res() res: Response,
-    @Body() body: CreateProfessionalProfileDto
+    @Body() body: UpdateProfessionalDto
   ) {
     try {
       await this.professionalService.updateProfessionalProfileService({

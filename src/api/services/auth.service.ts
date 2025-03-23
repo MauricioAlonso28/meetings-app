@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { AuthChangePassword, AuthCompleteName, AuthGetProfile, AuthGetProfileByEmail, AuthId, AuthResetPassword, AuthSignIn, AuthSignUp, DeleteAccountCredentials, UserEmail, UserPassword } from "@/api/constants/user.constant";
+import { AuthChangePassword, AuthCompleteName, AuthGetProfile, AuthGetProfileById, AuthId, AuthResetPassword, AuthSignIn, AuthSignUp, DeleteAccountCredentials, UserEmail, UserPassword } from "@/api/constants/user.constant";
 import { AuthEmailService } from "@/email/services/auth_email.service";
 import { ConfigService } from "@nestjs/config";
 import { Token } from "@/database/entities/token.entity";
@@ -37,8 +37,6 @@ export class AuthService {
       email: credentials.email,
       password: hashedPassword,
       role: credentials.role,
-      name: credentials.name,
-      lastname: credentials.lastname
     })
 
     const userCreated = await this.authRepository.save(newUser)
@@ -142,25 +140,6 @@ export class AuthService {
     await this.authRepository.update({ email: user.email }, { password: newPassword })    
   }
 
-  async updateCompleteNameService(
-    credentials: AuthCompleteName
-  ): Promise<void> {
-    const user = await this.authRepository.findOne({
-      where: {
-        id: credentials.id
-      }
-    })
-
-    if (!user) throw new Error("User with this email doesn't exist")
-
-    await this.authRepository.update({
-      id: user.id
-    }, {
-      name: credentials.name ? credentials.name : user.name,
-      lastname: credentials.lastname ? credentials.lastname : user.lastname
-    })
-  }
-
   /******************************/
 
   async disableProfileService(
@@ -195,17 +174,15 @@ export class AuthService {
   /******************************/
 
   async getProfileUserService(
-    credentials: AuthGetProfileByEmail
+    credentials: AuthId
   ): Promise<AuthGetProfile>{
     const user = await this.authRepository.findOne({
       where: {
-        email: credentials.email
+        id: credentials.id
       },
       select: {
         id: true,
         email: true,
-        name: true,
-        lastname: true,
         createdAt: true,
         role: true,
         disabled: true,
@@ -214,9 +191,6 @@ export class AuthService {
     })
 
     if (!user) throw new Error("User with this email doesn't exist")
-    if (credentials.role !== UserRole.ADMIN && user.id !== credentials.id) {
-      throw new Error("You don't have permission to access this user")
-    }
 
     return user
   }

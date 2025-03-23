@@ -19,16 +19,6 @@ export class User {
   password: string
 
   @Column({
-    nullable: true
-  })
-  name: string
-
-  @Column({
-    nullable: true
-  })
-  lastname: string
-
-  @Column({
     default: false
   })
   banned: boolean

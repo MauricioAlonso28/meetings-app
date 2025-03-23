@@ -55,13 +55,12 @@ export class AuthModule implements NestModule {
     consumer
       .apply(AuthNotLoggedInMiddleware, BannedUserMiddleware)
       .forRoutes(
-        { path: "auth/signout", method: RequestMethod.POST },
+        { path: "auth/profile", method: RequestMethod.GET },
         { path: "auth/update-password/:id", method: RequestMethod.PUT },
-        { path: "auth/update-complete-name", method: RequestMethod.PUT },
-        { path: "auth/profile/:email", method: RequestMethod.GET },
         { path: "auth/disable", method: RequestMethod.PUT },
         { path: "auth/enable", method: RequestMethod.PUT },
-        { path: "auth/delete-account-link", method: RequestMethod.DELETE },
+        { path: "auth/signout", method: RequestMethod.POST },
+        { path: "auth/delete-account-link", method: RequestMethod.POST },
         { path: "auth/delete-account", method: RequestMethod.DELETE },
       )
   }
