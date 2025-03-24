@@ -7,6 +7,7 @@ import { AuthExistUser, AuthNotLoggedInMiddleware, BannedUserMiddleware } from "
 import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { User } from "@/database/entities/user.entity";
+import { ProfessionalQueueModule } from "@/jobs/modules/professional-queue.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { User } from "@/database/entities/user.entity";
         }
       }
     }),
+    ProfessionalQueueModule
   ],
   controllers: [ProfessionalController],
   providers: [ProfessionalService],

@@ -6,12 +6,15 @@ import { ConfigService } from "@nestjs/config";
 import { createTransport } from "nodemailer";
 import { JwtModule } from "@nestjs/jwt";
 import { Token } from "@/database/entities/token.entity";
+import { ProfessionalEmailService } from "./services/professional_email.service";
+import { Professional } from "@/database/entities/professional.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       User,
-      Token
+      Token,
+      Professional
     ]),
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -28,6 +31,7 @@ import { Token } from "@/database/entities/token.entity";
   ],
   providers: [
     AuthEmailService,
+    ProfessionalEmailService,
     {
       provide: "EMAIL_TRANSPORT",
       inject: [ConfigService],
@@ -45,7 +49,8 @@ import { Token } from "@/database/entities/token.entity";
     }
   ],
   exports: [
-    AuthEmailService
+    AuthEmailService,
+    ProfessionalEmailService
   ]
 })
 export class EmailModule {};
