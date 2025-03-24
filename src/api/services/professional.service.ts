@@ -87,7 +87,7 @@ export class ProfessionalService {
 
   async enableVisibilityService(
     credentials: ProfessionalProfileCredentials
-  ): Promise<void> {
+  ): Promise<string> {
     const professionalFound = await this.professionalRepository.findOne({
       where: {
         userId: credentials.userId
@@ -123,5 +123,7 @@ export class ProfessionalService {
     }, {
       visibility: ProfessionalVisibility.PUBLIC
     })
+
+    return `${professionalFound.name} ${professionalFound.lastname}`
   }
 }

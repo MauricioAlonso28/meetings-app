@@ -4,13 +4,16 @@ import { Response } from 'express'
 import { CreateProfessionalProfileDto, UpdateProfessionalDto } from "../DTOs/professional.dto";
 import { handleError } from "../utils/error-handler.util";
 import { ProfessionalService } from "../services/professional.service";
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { changeAndCompare } from "../utils/reusable-functions";
+import { ProfessionalQueueProcessor } from "@/jobs/services/professional-queue.service";
 
+@ApiTags("Professional")
 @Controller("professional")
 export class ProfessionalController {
   constructor(
-    private readonly professionalService: ProfessionalService
+    private readonly professionalService: ProfessionalService,
+    private readonly professionalQueue: ProfessionalQueueProcessor
   ) { }
   
   @ApiOperation({
@@ -103,15 +106,30 @@ export class ProfessionalController {
     }
   }
 
+  @ApiOperation({
+    summary: "Enable visibility for a professional",
+  })
+  @ApiOkResponse({
+    description: "Professional visibility enabled successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
   @Put("enable-visibility")
   async enableVisibility(
     @Req() req: ExtendedRequest,
     @Res() res: Response,
   ) {
     try {
-      await this.professionalService.enableVisibilityService({
+      const completedName = await this.professionalService.enableVisibilityService({
         userId: req.user.sub
       })
+
+      await this.professionalQueue.enabledVisibility(
+        req.user.email,
+        completedName
+      )
 
       return res.send({
         message: "Visibility enabled successfully",
