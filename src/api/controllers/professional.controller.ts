@@ -4,13 +4,16 @@ import { Response } from 'express'
 import { CreateProfessionalProfileDto, UpdateProfessionalDto } from "../DTOs/professional.dto";
 import { handleError } from "../utils/error-handler.util";
 import { ProfessionalService } from "../services/professional.service";
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { changeAndCompare } from "../utils/reusable-functions";
+import { ProfessionalQueueProcessor } from "@/jobs/services/professional-queue.service";
 
+@ApiTags("Professional")
 @Controller("professional")
 export class ProfessionalController {
   constructor(
-    private readonly professionalService: ProfessionalService
+    private readonly professionalService: ProfessionalService,
+    private readonly professionalQueue: ProfessionalQueueProcessor
   ) { }
   
   @ApiOperation({
@@ -31,6 +34,7 @@ export class ProfessionalController {
   ) {
     try {
       const ageFormatted = changeAndCompare(body.age)
+      
       if(ageFormatted < 18) throw new Error("Must be older or equal than 18")
 
       await this.professionalService.postProfessionalService({
@@ -96,6 +100,39 @@ export class ProfessionalController {
 
       return res.send({
         message: "Professional profile updated successfully",
+      })
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @ApiOperation({
+    summary: "Enable visibility for a professional",
+  })
+  @ApiOkResponse({
+    description: "Professional visibility enabled successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put("enable-visibility")
+  async enableVisibility(
+    @Req() req: ExtendedRequest,
+    @Res() res: Response,
+  ) {
+    try {
+      const completedName = await this.professionalService.enableVisibilityService({
+        userId: req.user.sub
+      })
+
+      await this.professionalQueue.enabledVisibility(
+        req.user.email,
+        completedName
+      )
+
+      return res.send({
+        message: "Visibility enabled successfully",
       })
     } catch (error) {
       handleError(error, res)

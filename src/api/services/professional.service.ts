@@ -4,6 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateProfessionalCredentials, GetProfessionalProfile, ProfessionalProfileCredentials, UpdateProfessionalCredentials } from "../constants/professional.constant";
+import { ProfessionalVisibility } from "@/database/enums/user.enum";
 
 @Injectable()
 export class ProfessionalService {
@@ -82,5 +83,47 @@ export class ProfessionalService {
       nationality: credentials.nationality,
       specialization: credentials.specialization
     })
+  }
+
+  async enableVisibilityService(
+    credentials: ProfessionalProfileCredentials
+  ): Promise<string> {
+    const professionalFound = await this.professionalRepository.findOne({
+      where: {
+        userId: credentials.userId
+      },
+      select: [
+        "name",
+        "lastname",
+        "age",
+        "description",
+        "image",
+        "nationality",
+        "specialization",
+        "visibility"
+      ]
+    })
+    
+    if (!professionalFound) throw new Error("Professional with this id doesn't exist!")
+    if (professionalFound.visibility === ProfessionalVisibility.PUBLIC) throw new Error("This profile is already public")
+    
+    let existEmptyAttribute = false
+    
+    for (const [_, value] of Object.entries(professionalFound)) {
+      if (!value) {
+        existEmptyAttribute = true
+        break
+      }
+    }
+
+    if (existEmptyAttribute) throw new Error("You must fill all the fields to make your profile public")
+    
+    await this.professionalRepository.update({
+      userId: credentials.userId
+    }, {
+      visibility: ProfessionalVisibility.PUBLIC
+    })
+
+    return `${professionalFound.name} ${professionalFound.lastname}`
   }
 }
