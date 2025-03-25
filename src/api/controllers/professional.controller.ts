@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Put, Query, Req, Res } from "@nestjs/common";
 import { ExtendedRequest } from "../constants/config.interface";
 import { Response } from 'express'
 import { CreateProfessionalProfileDto, UpdateProfessionalDto } from "../DTOs/professional.dto";
@@ -7,6 +7,7 @@ import { ProfessionalService } from "../services/professional.service";
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { changeAndCompare } from "../utils/reusable-functions";
 import { ProfessionalQueueProcessor } from "@/jobs/services/professional-queue.service";
+import { UserRole } from "@/database/enums/user.enum";
 
 @ApiTags("Professional")
 @Controller("professional")
@@ -33,6 +34,10 @@ export class ProfessionalController {
     @Body() body: CreateProfessionalProfileDto
   ) {
     try {
+      if (req.user.role !== UserRole.PROFESSIONAL) {
+        return res.status(HttpStatus.FORBIDDEN).json({ message: "You are not a professional" })
+      } 
+
       const ageFormatted = changeAndCompare(body.age)
       
       if(ageFormatted < 18) throw new Error("Must be older or equal than 18")
@@ -68,6 +73,36 @@ export class ProfessionalController {
     try {
       const response = await this.professionalService.getProfessionalProfileService({
         userId: req.user.sub,
+      })
+
+      return res.json(response)
+    } catch (error) {
+      handleError(error, res)
+    }
+  }
+
+  @ApiOperation({
+    summary: "Get professionals",
+  })
+  @ApiOkResponse({
+    description: "Professionals retrieved successfully",
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid request",
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get("job")
+  async getAllProfessionals(
+    @Res() res: Response,
+    @Query('page') page: number = 1, 
+    @Query('limit') limit: number = 10,
+    @Query('specialization') specialization?: string
+  ) { 
+    try {
+      const response = await this.professionalService.getAllProfessionalsService({
+        page: Number(page),
+        limit: Number(limit),
+        specialization: specialization?.toLowerCase()
       })
 
       return res.json(response)

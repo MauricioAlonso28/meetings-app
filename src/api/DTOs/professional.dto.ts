@@ -36,12 +36,19 @@ export class CreateProfessionalProfileDto {
   @IsString()
   lastname: string;
 
+  @ApiProperty({
+    description: 'The date of birth must be a valid date',
+    example: "1990-01-01"
+  })
   @Type(() => Date)
   @IsDate({ 
     message: "The date of birth must be a valid date",
   })
   age: Date
 
+  @ApiProperty({
+    description: 'The description must be a string',
+  })
   @IsOptional()
   @IsString({
     message: "The description must be a string",
@@ -53,7 +60,10 @@ export class CreateProfessionalProfileDto {
     message: "The description must be at least 250 characters",
   })
   description: string
-
+  
+  @ApiProperty({
+    description: 'The image must be an Url',
+  })
   @IsOptional()
   @IsUrl({}, {
     message: "The image must be an Url"
@@ -63,6 +73,9 @@ export class CreateProfessionalProfileDto {
   })
   image: string
 
+  @ApiProperty({
+    description: 'The specialization must be a string',
+  })
   @IsOptional()
   @IsString({
     message: "The specialization must be a string",
@@ -75,6 +88,9 @@ export class CreateProfessionalProfileDto {
   })
   specialization: string
 
+  @ApiProperty({
+    description: 'The nationality must be a string',
+  })
   @IsOptional()
   @IsString({
     message: "The nationality must be a string",
@@ -123,6 +139,9 @@ export class UpdateProfessionalDto {
   @IsString()
   lastname: string;
 
+  @ApiProperty({
+    description: 'The description must be a string',
+  })
   @IsOptional()
   @IsString({
     message: "The description must be a string",
@@ -135,6 +154,9 @@ export class UpdateProfessionalDto {
   })
   description: string
 
+  @ApiProperty({
+    description: 'The image must be an Url',
+  })
   @IsOptional()
   @IsUrl({}, {
     message: "The image must be an Url"
@@ -144,6 +166,9 @@ export class UpdateProfessionalDto {
   })
   image: string
 
+  @ApiProperty({
+    description: 'The specialization must be a string',
+  })
   @IsOptional()
   @IsString({
     message: "The specialization must be a string",
@@ -156,6 +181,9 @@ export class UpdateProfessionalDto {
   })
   specialization: string
 
+  @ApiProperty({
+    description: 'The nationality must be a string',
+  })
   @IsOptional()
   @IsString({
     message: "The nationality must be a string",
@@ -167,9 +195,4 @@ export class UpdateProfessionalDto {
     message: "The nationality must be more than 3 characters"
   })
   nationality: string
-}
-
-export class VerificationVisibilityDto {
-  @IsEnum(ProfessionalVisibility)
-  visibility: ProfessionalVisibility
 }

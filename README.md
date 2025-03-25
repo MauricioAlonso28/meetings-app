@@ -16,14 +16,13 @@
 | DELETE  | /auth/delete-account       | Delete Account               | Done   |
 
 ## PROFESSIONAL
-| Methods | Routes                           | Description                    | Status   |
-|---------|----------------------------------|--------------------------------|----------|
-| GET     | /professional/profile            | Get professional profile       | Done     |
-| POST    | /professional/create             | Create a professional          | Done     |
-| PUT     | /professional/update-profile     | Update professional data       | Done     |
-| PUT     | /professional/enable-visibility  | Enable visibility to public    | Pendient |
-| GET     | /professional/all                | Get all public professionals   | Pendient |
-| GET     | /professional/professionals/:job | Get all professionals by job   | Pendient |
+| Methods | Routes                          | Description                    | Status   |
+|---------|---------------------------------|--------------------------------|----------|
+| GET     | /professional/profile           | Get professional profile       | Done     |
+| POST    | /professional/create            | Create a professional          | Done     |
+| PUT     | /professional/update-profile    | Update professional data       | Done     |
+| PUT     | /professional/enable-visibility | Enable visibility to public    | Done     |
+| GET     | /professional/job               | Get all public professionals   | Done     |
 
 ## CUSTOMERS
 | Methods | Routes                          | Description                      | Status   |
