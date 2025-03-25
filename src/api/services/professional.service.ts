@@ -3,7 +3,7 @@ import { User } from "@/database/entities/user.entity";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { CreateProfessionalCredentials, GetProfessionalProfile, ProfessionalProfileCredentials, UpdateProfessionalCredentials } from "../constants/professional.constant";
+import { CreateProfessionalCredentials, FilterProfessionalsPageLimit, GetAllProfessionalsProfile, GetProfessionalProfile, ProfessionalProfileCredentials, UpdateProfessionalCredentials } from "../constants/professional.constant";
 import { ProfessionalVisibility } from "@/database/enums/user.enum";
 
 @Injectable()
@@ -64,6 +64,35 @@ export class ProfessionalService {
     if (!professionalFound) throw new Error("Professional with this id doesn't exist")
     
     return professionalFound
+  }
+
+  async getAllProfessionalsService(
+    credentials: FilterProfessionalsPageLimit
+  ): Promise<GetAllProfessionalsProfile[]> {
+    const offset = (credentials.page - 1) * credentials.limit
+    const whereCondition: any = {
+      visibility: ProfessionalVisibility.PUBLIC
+    }
+
+    if (credentials.specialization) {
+      whereCondition.specialization = credentials.specialization
+    }
+
+    const professionalsFound = await this.professionalRepository.find({
+      where: whereCondition,
+      select: [
+        "age",
+        "image",
+        "nationality",
+        "specialization",
+        "name",
+        "lastname"
+      ],
+      skip: offset,
+      take: credentials.limit
+    })
+
+    return professionalsFound
   }
 
   async updateProfessionalProfileService(
