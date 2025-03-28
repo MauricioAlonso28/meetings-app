@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 import { ProfessionalVisibility } from "../enums/user.enum";
+import { Service } from "./service.entity";
 
 @Entity('professionals')
 export class Professional {
@@ -14,6 +15,11 @@ export class Professional {
     name: "userId"
   })
   user: User
+
+  @OneToMany(() => Service,
+    (service) => service.user,
+    { nullable: true }
+  )
 
   @Column({
     nullable: true

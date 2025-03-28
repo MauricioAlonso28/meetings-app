@@ -130,7 +130,7 @@ export class AuthIdDto {
     example: "Tashja776-dadjaduja-3242dada-23242fcsfs"
   })
   @IsUUID(4, {
-    message: "Note id must be uuid"
+    message: "User id must be uuid"
   })
   id: string;
 }

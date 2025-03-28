@@ -8,12 +8,13 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { User } from "@/database/entities/user.entity";
 import { ProfessionalQueueModule } from "@/jobs/modules/professional-queue.module";
+import { Service } from "@/database/entities/service.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       User,
-      Professional
+      Professional,
     ]),
     JwtModule.registerAsync({
       inject: [ConfigService],
